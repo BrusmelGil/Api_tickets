@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Modificar Ticket</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Función para obtener parámetros GET de la URL
+    function obtenerParametroGET(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Obtener el ID del ticket, descripción y nombre del usuario
+    const ticketId = obtenerParametroGET('id');
+    const descripcion = obtenerParametroGET('descripcion');
+    const nombreUsuario = obtenerParametroGET('nombre');
+
+    // Verifica si el ID del ticket y la descripción están presentes
+    if (ticketId && descripcion) {
+        // Realizar llamada PUT
+        axios.put(`http://localhost:8080/admin/tickets/${ticketId}`, { description: descripcion })
+            .then(response => {
+                console.log('Ticket modificado', response);
+                // Redirigir a listaSolicitudes.html
+                window.location.href = `listaSolicitudes.html?nombre=${encodeURIComponent(nombreUsuario)}`;
+            })
+            .catch(error => {
+                console.error('Error al modificar el ticket', error);
+                // Manejar el error adecuadamente
+                // Posiblemente redirigir a una página de error o mostrar un mensaje
+            });
+    } else {
+        console.error('Faltan datos para modificar el ticket.');
+        // Manejar la falta de datos adecuadamente
+        }
+    });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Listado de Solicitudes</title>
+    <!-- Llamada a la librería de Bulma CSS + hoja CSS para usar toda la página -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+    <!-- Vue.js y para hacer solicitudes HTTP -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+</head>
+<!-- Cuerpo de la página con el color de fondo "info" de Bulma.css y color de texto blanco -->
+<body>
+    <div id="app">
+    <!-- Navbar -->
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+        </div>
+    </nav>
+
+    <!-- Lista de Solicitudes -->
+    <section class="section has-background-info">
+        <div class="container">
+            <h1 class="title has-text-white">Nuevo Ticket de {{ nombre }}</h1>
+        </div>
+    </section>
+    <br><br>
+        <form class="m-2" @submit.prevent="crearTicket">
+            <label for="descripcion">Descripción:</label>
+            <input type="text" id="descripcion" v-model="ticket.description"><br><br>
+            <input type="submit" value="Crear Ticket">
+        </form>
+    </div>
+
+    <script>
+        // Función para obtener parámetros GET de la URL
+        function obtenerParametroGET(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        const nombreUsuario = obtenerParametroGET('nombre');
+
+     new Vue({
+        el: '#app',
+        data: {
+            nombre: '', 
+            ticket: {
+                description: '',
+                usuarioCreador: '',
+                status: 0
+            }
+        },
+        methods: {
+            getNombreUsuarioDesdeURL() {
+                const parametrosURL = new URLSearchParams(window.location.search);
+                console.log(parametrosURL.get('nombre'));
+                return parametrosURL.get('nombre') || 'Nombre no disponible';
+            },
+            crearTicket() {
+                axios.post('http://localhost:8080/admin/addticket', this.ticket)
+                    .then(response => {
+                        console.log('Ticket creado', response);
+                        // Aquí puedes redirigir al usuario o mostrar un mensaje de éxito
+                        // Redirigir a listaSolicitudes.html
+                        window.location.href = `listaSolicitudes.html?nombre=${encodeURIComponent(nombreUsuario)}`;
+                    })
+                    .catch(error => {
+                        console.error('Error al crear el ticket', error);
+                        // Manejar el error adecuadamente
+                    });
+            }
+        },
+        mounted() {
+                console.log("Vue instance mounted");
+                this.nombre = this.getNombreUsuarioDesdeURL();
+                this.ticket.usuarioCreador = this.nombre;
+        }
+    });
+
+    </script>
+</body>
+</html>

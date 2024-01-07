@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Eliminar Ticket</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <script>
+       document.addEventListener('DOMContentLoaded', function() {
+    // Función para obtener parámetros GET de la URL
+    function obtenerParametroGET(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Obtener el ID del ticket y el nombre del usuario
+    const ticketId = obtenerParametroGET('id');
+    const nombreUsuario = obtenerParametroGET('nombre');
+
+    // Verifica si el ID del ticket está presente
+    if (ticketId) {
+        // Realizar llamada DELETE
+        axios.delete(`http://localhost:8080/admin/tickets/${ticketId}`)
+            .then(response => {
+                console.log('Ticket eliminado', response);
+                // Redirigir a listaSolicitudes.html
+                window.location.href = `listaSolicitudes.html?nombre=${encodeURIComponent(nombreUsuario)}`;
+            })
+            .catch(error => {
+                console.error('Error al eliminar el ticket', error);
+                // Manejar el error adecuadamente
+                // Posiblemente redirigir a una página de error o mostrar un mensaje
+            });
+    } else {
+        console.error('No se proporcionó un ID de ticket válido.');
+        // Manejar la falta del ID del ticket adecuadamente
+    }
+    });
+    </script>
+</body>
+</html>

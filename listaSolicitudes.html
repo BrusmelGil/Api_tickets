@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Listado de Solicitudes</title>
+    <!-- Llamada a la librería de Bulma CSS + hoja CSS para usar toda la página -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+    <!-- Vue.js y para hacer solicitudes HTTP -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+    <!-- Para los iconos de las acciones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+</head>
+<!-- Cuerpo de la página con el color de fondo "info" de Bulma.css y color de texto blanco -->
+<body>
+    <div id="app">
+    <!-- Navbar -->
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+        </div>
+    </nav>
+
+    <!-- Lista de Solicitudes -->
+    <section class="section has-background-info">
+        <div class="container">
+            <h1 class="title has-text-white">Solicitudes de {{ nombre }}</h1>
+        </div>
+    </section>
+    <br><br>
+     <!-- Botón para Nuevo Ticket -->
+     <button class="button is-primary m-2" @click="irANuevoTicket">Nuevo ticket</button>
+     <br><br>
+    <!-- Aquí comienza la lista de solicitudes -->
+    <div class="table-container m-2">
+        <table class="table is-fullwidth is-striped is-hoverable" v-if="tickets.length">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Problema</th>
+                    <th>Status</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th> 
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="ticket in tickets" :key="ticket.id">
+                    <td>{{ ticket.id }}</td>
+                    <td><input type="text" class="input" v-model="ticket.description" value="{{ ticket.description }}"></td>
+                    <td>{{ ticket.status }}</td>
+                    <td>{{ formatFecha(ticket.fechaCreacion) }}</td>
+                    <!-- Iconos de las acciones -->
+                    <td>
+                        <button class="button is-small is-info" @click="modificarTicket(ticket)">
+                            <span class="icon">
+                                <i class="fas fa-edit"></i>
+                            </span>
+                        </button>
+                        <button class="button is-small is-danger" @click="eliminarTicket(ticket.id)">
+                            <span class="icon">
+                                <i class="fas fa-trash"></i>
+                            </span>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div v-else>
+            <p>No hay solicitudes disponibles.</p>
+        </div>
+    </div>
+    
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                nombre: '',
+                tickets: []
+            },
+            methods: {
+                getNombreUsuarioDesdeURL() {
+                    const parametrosURL = new URLSearchParams(window.location.search);
+                    return parametrosURL.get('nombre') || 'Nombre no disponible';
+                },
+                fetchTickets() {
+                    // Reemplaza con la URL correcta de tu API
+                    endpoint=`http://localhost:8080/admin/ticketsusuario/${encodeURIComponent(this.nombre)}`;
+                    console.log(endpoint);
+                    axios.get(endpoint)
+                        .then(response => {
+                            this.tickets = response.data;
+                        })
+                        .catch(error => {
+                            console.error('Error al obtener tickets', error);
+                        });
+                },
+                formatFecha(fecha) {
+                    const date = new Date(fecha);
+                    return date.toLocaleDateString('es-ES', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+                },
+                irANuevoTicket() {
+                    const url = "nuevoTicket.html?nombre=" + this.nombre;
+                    window.location.href = url;
+                },
+                modificarTicket(ticket) {
+                    const url = `modificarTicket.html?id=${ticket.id}&descripcion=${encodeURIComponent(ticket.description)}&nombre=${encodeURIComponent(this.nombre)}`;
+                    window.location.href = url;
+                },
+
+                eliminarTicket(ticketId) {
+                    const url = `eliminarTicket.html?id=${ticketId}&nombre=${encodeURIComponent(this.nombre)}`;
+                    window.location.href = url;
+                }
+            },
+            mounted() {
+                this.nombre = this.getNombreUsuarioDesdeURL();
+                this.fetchTickets();
+            }
+        });
+    </script>
+</body>
+</html>

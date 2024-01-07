@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Codificación de la página => tiene que ver con la codificación de la base datos ;) -->
+    <meta charset="utf-8">
+    <title>Herramienta Soporte</title>
+    <!-- Llamada a la librería de Bulma CSS + hoja CSS para usar toda la página -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+    <link rel="stylesheet" href="css/usarTodaLaPagina.css">
+    <!-- Vue.js y para hacer solicitudes HTTP -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> 
+</head>
+<!-- Cuerpo de la página con el color de fondo "info" de Bulma.css -->
+<body class="has-background-info">
+    <!-- Inicio del ámbito de Vue -->
+    <div id="app"> 
+        <section class="section">
+            <div class="container">
+                <div class="columns is-centered">
+                    <div class="column is-5-tablet is-4-desktop is-4-widescreen">
+                        <!-- Formulario con método post -->
+                        <form method="POST" @submit.prevent="handleSubmit" class="box">
+                            <!-- Logo de la Herramienta -->
+                            <figure class="image is-128x128" style="margin: 0 auto;">
+                                <img src="img/logoTickets.png" alt="Logo">
+                            </figure>
+                            <!-- Título de la Herramienta de Soporte -->
+                            <h1 class="title has-text-centered" >Herramienta Soporte</h1>
+                            <!-- Campo Usuario -->
+                            <div class="field">
+                                <label for="nombre" class="label">Usuario</label>
+                                <div class="control">
+                                    <input type="text" v-model="nombre" name="nombre" id="nombre" class="input" required>
+                                </div>
+                            </div>
+                            <!-- Campo Contraseña -->
+                            <div class="field">
+                                <label for="password" class="label">Contraseña</label>
+                                <div class="control">
+                                    <input type="password" v-model="password" name="password" id="password" class="input" required>
+                                </div>
+                            </div>
+                            <!-- Mensaje de error -->
+                            <div v-if="loginError" class="notification is-danger">
+                                Datos de acceso no válidos
+                            </div>
+                            <!-- Botón Entrar -->
+                            <div class="field">
+                                <button class="button is-success">Entrar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </section>
+    </div>
+    <!-- Script con Vue -->
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                nombre: '',
+                password: '',
+                loginError: false
+            },
+            methods: {
+                handleSubmit() {
+                    console.log("Entro en el handleSubmit");
+                    const endpoint = 'http://localhost:8080/verificaruser';
+                    axios.post(endpoint, {
+                        nombre: this.nombre,
+                        password: this.password
+                    })
+                    .then(response => {
+                        console.log(response);
+                        if (response.data) {
+                            window.location.href = 'listaSolicitudes.html?nombre=' + this.nombre;
+                        } else {
+                            this.loginError = true;
+                        }
+                    })
+                    .catch(error => {
+                        this.loginError = true;
+                        console.error('Error en el login', error.response);
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
